@@ -13,7 +13,7 @@ namespace ExpressionUtils.Parsing
         private static readonly Regex VariableRegex = new Regex("[a-zA-Z_][\\w_]*");
         private static readonly Regex FunctionNameRegex = new Regex("[a-zA-Z][\\w_]*");
         private static readonly Regex IntegerRegex = new Regex("-?\\d+");
-        private static readonly Regex DecimalRegex = new Regex("-?\\d+\\.\\d+");        
+        private static readonly Regex DecimalRegex = new Regex("-?\\d+\\.\\d+");
 
         public static Expression Parse(String str)
         {
@@ -36,15 +36,17 @@ namespace ExpressionUtils.Parsing
             {
                 if (token is OpeningParenthesisToken)
                 {
-                    if(expressionOnTheLeft) throw new ExpressionParseException($"Unexpected token: {token.DisplayString}");
+                    if (expressionOnTheLeft)
+                        throw new ExpressionParseException($"Unexpected token: {token.DisplayString}");
                     operatorsStack.Push(token);
                 }
-                else if(token is ClosingParenthesisToken)
+                else if (token is ClosingParenthesisToken)
                 {
                     if (!expressionOnTheLeft)
                     {
-                        if (operatorsStack.Count > 0 && operatorsStack.Peek() is FunctionToken && ((FunctionToken) operatorsStack.Peek()).ArgumentCount == 0) // this is 0 argument function
-                        {                            
+                        if (operatorsStack.Count > 0 && operatorsStack.Peek() is FunctionToken &&
+                            ((FunctionToken) operatorsStack.Peek()).ArgumentCount == 0) // this is 0 argument function
+                        {
                             ProcessFunction(expressionStack, operatorsStack.Pop() as FunctionToken);
                         }
                         else
@@ -85,7 +87,8 @@ namespace ExpressionUtils.Parsing
                 }
                 else if (token is ArgumentSeparatorToken)
                 {
-                    if (!expressionOnTheLeft) throw new ExpressionParseException($"Unexpected token: {token.DisplayString}");
+                    if (!expressionOnTheLeft)
+                        throw new ExpressionParseException($"Unexpected token: {token.DisplayString}");
                     while (true)
                     {
                         if (operatorsStack.Count == 0)
@@ -109,44 +112,51 @@ namespace ExpressionUtils.Parsing
                     }
                     expressionOnTheLeft = false;
                 }
-                else if(token is ArithmeticOperatorToken)
+                else if (token is ArithmeticOperatorToken)
                 {
-                    if (!expressionOnTheLeft) throw new ExpressionParseException($"Unexpected token: {token.DisplayString}");
-                    while (operatorsStack.Count > 0 && operatorsStack.Peek() is ArithmeticOperatorToken) // TODO: add operator precedence condition
+                    if (!expressionOnTheLeft)
+                        throw new ExpressionParseException($"Unexpected token: {token.DisplayString}");
+                    while (operatorsStack.Count > 0 && operatorsStack.Peek() is ArithmeticOperatorToken)
+                        // TODO: add operator precedence condition
                     {
                         ProcessArithmeticOperator(expressionStack, operatorsStack.Pop() as ArithmeticOperatorToken);
                     }
                     operatorsStack.Push(token);
                     expressionOnTheLeft = false;
                 }
-                else if(token is VariableToken)
+                else if (token is VariableToken)
                 {
-                    if (expressionOnTheLeft) throw new ExpressionParseException($"Unexpected token: {token.DisplayString}");
+                    if (expressionOnTheLeft)
+                        throw new ExpressionParseException($"Unexpected token: {token.DisplayString}");
                     expressionStack.Push(ExpressionBuilder.Variable((token as VariableToken).Name));
                     expressionOnTheLeft = true;
                 }
                 else if (token is StringConstantToken)
                 {
-                    if (expressionOnTheLeft) throw new ExpressionParseException($"Unexpected token: {token.DisplayString}");
+                    if (expressionOnTheLeft)
+                        throw new ExpressionParseException($"Unexpected token: {token.DisplayString}");
                     expressionStack.Push(ExpressionBuilder.String((token as StringConstantToken).String));
                     expressionOnTheLeft = true;
                 }
                 else if (token is IntegerConstantToken)
                 {
-                    if (expressionOnTheLeft) throw new ExpressionParseException($"Unexpected token: {token.DisplayString}");
+                    if (expressionOnTheLeft)
+                        throw new ExpressionParseException($"Unexpected token: {token.DisplayString}");
                     expressionStack.Push(ExpressionBuilder.Integer((token as IntegerConstantToken).Int));
                     expressionOnTheLeft = true;
                 }
                 else if (token is DecimalConstantToken)
                 {
-                    if (expressionOnTheLeft) throw new ExpressionParseException($"Unexpected token: {token.DisplayString}");
+                    if (expressionOnTheLeft)
+                        throw new ExpressionParseException($"Unexpected token: {token.DisplayString}");
                     expressionStack.Push(ExpressionBuilder.Decimal((token as DecimalConstantToken).Decimal));
                     expressionOnTheLeft = true;
                 }
                 else if (token is FunctionToken)
                 {
-                    if (expressionOnTheLeft) throw new ExpressionParseException($"Unexpected token: {token.DisplayString}");
-                    operatorsStack.Push(token);                    
+                    if (expressionOnTheLeft)
+                        throw new ExpressionParseException($"Unexpected token: {token.DisplayString}");
+                    operatorsStack.Push(token);
                 }
 
             }
@@ -209,20 +219,35 @@ namespace ExpressionUtils.Parsing
                 var nextChar = chars[i];
                 if (inWord)
                 {
-                    if (Char.IsWhiteSpace(nextChar) || nextChar == '\n' || nextChar == ')' || nextChar == ',' || ArithmeticOperator.IsOperator(nextChar))
+                    if (Char.IsWhiteSpace(nextChar) || nextChar == '\n' || nextChar == ')' || nextChar == ',' ||
+                        ArithmeticOperator.IsOperator(nextChar))
                     {
                         var identifier = buffer.ToString();
                         if (VariableRegex.IsMatch(identifier))
                         {
                             tokens.Add(new VariableToken(identifier));
                         }
-                        else if(IntegerRegex.IsMatch(identifier))
+                        else if (IntegerRegex.IsMatch(identifier))
                         {
-                            tokens.Add(new IntegerConstantToken(int.Parse(identifier)));
+                            try
+                            {
+                                tokens.Add(new IntegerConstantToken(long.Parse(identifier)));
+                            }
+                            catch (OverflowException)
+                            {
+                                throw new ExpressionParseException($"Too big integer: {identifier}");
+                            }
                         }
                         else if (DecimalRegex.IsMatch(identifier))
                         {
-                            tokens.Add(new DecimalConstantToken(decimal.Parse(identifier)));
+                            try
+                            {
+                                tokens.Add(new DecimalConstantToken(decimal.Parse(identifier)));
+                            }
+                            catch (Exception)
+                            {
+                                throw new ExpressionParseException($"Too big decimal: {identifier}");
+                            }
                         }
                         else
                         {

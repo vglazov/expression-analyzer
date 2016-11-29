@@ -25,7 +25,7 @@ namespace ExpressionUtils.Expressions
             return new StringConstantExpression(str);
         }
 
-        public static IntegerConstantExpression Integer(int i)
+        public static IntegerConstantExpression Integer(long i)
         {
             return new IntegerConstantExpression(i);
         }

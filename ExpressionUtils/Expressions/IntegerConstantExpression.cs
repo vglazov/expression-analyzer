@@ -8,12 +8,12 @@ namespace ExpressionUtils.Expressions
 {
     public class IntegerConstantExpression : Expression
     {
-        public IntegerConstantExpression(int i)
+        public IntegerConstantExpression(long i)
         {
             Int = i;
         }
 
-        public int Int { get; }
+        public long Int { get; }
 
         public override string DisplayString => Int.ToString();
 

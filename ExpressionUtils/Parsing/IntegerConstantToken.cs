@@ -8,12 +8,12 @@ namespace ExpressionUtils.Parsing
 {
     public class IntegerConstantToken: Token
     {
-        public IntegerConstantToken(int i)
+        public IntegerConstantToken(long i)
         {
             Int = i;
         }
 
-        public int Int { get; }
+        public long Int { get; }
 
 
         public override string DisplayString => Int.ToString();
