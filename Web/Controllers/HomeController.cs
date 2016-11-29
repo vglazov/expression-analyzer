@@ -51,11 +51,11 @@ namespace Web.Controllers
 
         private static Expression ParseSubstitutionValue(String value)
         {
-            int intVal;
+            long longVal;
             decimal decVal;
-            if (int.TryParse(value, out intVal))
+            if (long.TryParse(value, out longVal))
             {
-                return new IntegerConstantExpression(intVal);
+                return new IntegerConstantExpression(longVal);
             }
             else if(decimal.TryParse(value, out decVal))
             {
