@@ -37,6 +37,13 @@ namespace ExpressionUtils.Tests
             AssertTokensAre(new[] { "max(", "x", "+", "y", ",", "-10", ")", "-", "z" }, tokens);
         }
 
+        [TestMethod]
+        public void ReadTokensTest5()
+        {
+            var tokens = ExpressionParser.ReadTokens("sqrt(3.14) + f()");
+            AssertTokensAre(new[] { "sqrt(", "3.14", ")", "+", "f(", ")" }, tokens);
+        }
+
 
         private static void AssertTokensAre(string[] expected, List<Token> actual)
         {

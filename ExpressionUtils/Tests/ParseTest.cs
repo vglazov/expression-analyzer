@@ -48,5 +48,12 @@ namespace ExpressionUtils.Tests
             ExpressionParser.Parse("max(1,)");
         }
 
+        [TestMethod]
+        public void ParseTest7()
+        {
+            var expression = ExpressionParser.Parse("5.99 + exp(1.11111)");
+            Assert.AreEqual("5.99 + exp(1.11111)", expression.DisplayString);
+        }
+
     }
 }

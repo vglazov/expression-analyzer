@@ -10,10 +10,10 @@ namespace ExpressionUtils.Parsing
     public class ExpressionParser
     {
 
-        private static readonly Regex VariableRegex = new Regex("[a-zA-Z_][\\w_]*");
-        private static readonly Regex FunctionNameRegex = new Regex("[a-zA-Z][\\w_]*");
-        private static readonly Regex IntegerRegex = new Regex("-?\\d+");
-        private static readonly Regex DecimalRegex = new Regex("-?\\d+\\.\\d+");
+        private static readonly Regex VariableRegex = new Regex("^[a-zA-Z_][\\w_]*$");
+        private static readonly Regex FunctionNameRegex = new Regex("^[a-zA-Z][\\w_]*$");
+        private static readonly Regex IntegerRegex = new Regex("^-?\\d+$");
+        private static readonly Regex DecimalRegex = new Regex("^-?\\d+\\.\\d+$");
 
         public static Expression Parse(String str)
         {
@@ -256,7 +256,7 @@ namespace ExpressionUtils.Parsing
                         inWord = false;
                         buffer = null;
                     }
-                    else if(Char.IsLetterOrDigit(nextChar) || nextChar == '_')
+                    else if(Char.IsLetterOrDigit(nextChar) || nextChar == '_' || nextChar == '.')
                     {
                         buffer.Append(nextChar);
                     }
