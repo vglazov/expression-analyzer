@@ -19,19 +19,23 @@ namespace Web.Controllers
 
         [HttpPost]
         public ActionResult Analyze([Bind] ExpressionContext context)
-        {
-            ViewBag.ExpressionOutput = null;            
-            try
+        {            
+            ViewBag.AnalyzeError = null;
+            context.Substitutions = null;
+            ViewBag.ExpressionOutput = null;
+            if (context.ExpressionInput != null && context.ExpressionInput.Trim().Length > 0)
             {
-                var expr = ExpressionParser.Parse(context.ExpressionInput);
-                context.Substitutions = expr.GetAllVariables().ToDictionary(v => v.Name, v => "");
-                ViewBag.AnalyzeError = null;                
+                try
+                {
+                    var expr = ExpressionParser.Parse(context.ExpressionInput);
+                    context.Substitutions = expr.GetAllVariables().ToDictionary(v => v.Name, v => "");
+                }
+                catch (ExpressionParseException e)
+                {
+                    ViewBag.AnalyzeError = e.Message;
+                }
             }
-            catch (ExpressionParseException e)
-            {
-                ViewBag.AnalyzeError = e.Message;
-            }
-            
+
             return View("Index", context);
         }
 
