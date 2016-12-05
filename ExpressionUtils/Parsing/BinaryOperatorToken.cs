@@ -2,9 +2,9 @@
 
 namespace ExpressionUtils.Parsing
 {
-    class ArithmeticOperatorToken: Token
+    class BinaryOperatorToken: OperatorToken
     {
-        public ArithmeticOperatorToken(ArithmeticOperator @operator)
+        public BinaryOperatorToken(ArithmeticOperator @operator)
         {
             Operator = @operator;
         }

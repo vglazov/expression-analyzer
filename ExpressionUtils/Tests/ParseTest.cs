@@ -55,5 +55,19 @@ namespace ExpressionUtils.Tests
             Assert.AreEqual("5.99 + exp(1.11111)", expression.DisplayString);
         }
 
+        [TestMethod]
+        public void ParseTest8()
+        {
+            var expression = ExpressionParser.Parse("-a + b");
+            Assert.AreEqual("-a + b", expression.DisplayString);
+        }
+
+        [TestMethod]
+        public void ParseTest9()
+        {
+            var expression = ExpressionParser.Parse("max(-(f() + 10), x1)");
+            Assert.AreEqual("max(-(f() + 10), x1)", expression.DisplayString);
+        }
+
     }
 }

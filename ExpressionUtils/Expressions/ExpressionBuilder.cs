@@ -39,5 +39,10 @@ namespace ExpressionUtils.Expressions
         {
             return new FunctionExpression(name, expressions.ToList());
         }
+
+        public static UnaryMinusExpression UnaryMinus(Expression expression)
+        {
+            return new UnaryMinusExpression(expression);
+        }
     }
 }

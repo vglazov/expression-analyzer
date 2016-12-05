@@ -48,6 +48,7 @@ namespace ExpressionUtils.Parsing
                             ((FunctionToken) operatorsStack.Peek()).ArgumentCount == 0) // this is 0 argument function
                         {
                             ProcessFunction(expressionStack, operatorsStack.Pop() as FunctionToken);
+                            expressionOnTheLeft = true;
                         }
                         else
                         {
@@ -68,9 +69,9 @@ namespace ExpressionUtils.Parsing
                                 expressionStack.Push(ExpressionBuilder.Parentheses(expressionStack.Pop()));
                                 break;
                             }
-                            else if (oper is ArithmeticOperatorToken)
+                            else if (oper is OperatorToken)
                             {
-                                ProcessArithmeticOperator(expressionStack, oper as ArithmeticOperatorToken);
+                                ProcessOperator(expressionStack, oper as OperatorToken);
                             }
                             else if (oper is FunctionToken)
                             {
@@ -96,9 +97,9 @@ namespace ExpressionUtils.Parsing
                             throw new ExpressionParseException("Argument separator misplaced");
                         }
                         var oper = operatorsStack.Peek();
-                        if (oper is ArithmeticOperatorToken)
+                        if (oper is OperatorToken)
                         {
-                            ProcessArithmeticOperator(expressionStack, operatorsStack.Pop() as ArithmeticOperatorToken);
+                            ProcessOperator(expressionStack, operatorsStack.Pop() as OperatorToken);
                         }
                         else if (oper is FunctionToken)
                         {
@@ -112,17 +113,25 @@ namespace ExpressionUtils.Parsing
                     }
                     expressionOnTheLeft = false;
                 }
-                else if (token is ArithmeticOperatorToken)
+                else if (token is BinaryOperatorToken)
                 {
-                    if (!expressionOnTheLeft)
-                        throw new ExpressionParseException($"Unexpected token: {token.DisplayString}");
-                    while (operatorsStack.Count > 0 && operatorsStack.Peek() is ArithmeticOperatorToken)
-                        // TODO: add operator precedence condition
+                    if (!expressionOnTheLeft && (token as BinaryOperatorToken).Operator == ArithmeticOperator.Minus)
                     {
-                        ProcessArithmeticOperator(expressionStack, operatorsStack.Pop() as ArithmeticOperatorToken);
+                        // this is unary minus
+                        operatorsStack.Push(new UnaryMinusToken());
                     }
-                    operatorsStack.Push(token);
-                    expressionOnTheLeft = false;
+                    else
+                    {
+                        if (!expressionOnTheLeft)
+                            throw new ExpressionParseException($"Unexpected token: {token.DisplayString}");
+                        while (operatorsStack.Count > 0 && operatorsStack.Peek() is OperatorToken)
+                        // TODO: add operator precedence condition
+                        {
+                            ProcessOperator(expressionStack, operatorsStack.Pop() as OperatorToken);
+                        }
+                        operatorsStack.Push(token);
+                        expressionOnTheLeft = false;
+                    }
                 }
                 else if (token is VariableToken)
                 {
@@ -164,9 +173,9 @@ namespace ExpressionUtils.Parsing
             while (operatorsStack.Count > 0)
             {
                 var oper = operatorsStack.Pop();
-                if (oper is ArithmeticOperatorToken)
+                if (oper is OperatorToken)
                 {
-                    ProcessArithmeticOperator(expressionStack, oper as ArithmeticOperatorToken);
+                    ProcessOperator(expressionStack, oper as OperatorToken);
                 }
                 else
                 {
@@ -185,13 +194,22 @@ namespace ExpressionUtils.Parsing
             }
         }
 
-        private static void ProcessArithmeticOperator(Stack<Expression> expressionStack, ArithmeticOperatorToken oper)
+        private static void ProcessOperator(Stack<Expression> expressionStack, OperatorToken oper)
         {
-            if (expressionStack.Count < 2)
-                throw new ExpressionParseException($"Missing argument(s) for {oper.DisplayString} operator");
-            var rightExp = expressionStack.Pop();
-            var leftExp = expressionStack.Pop();
-            expressionStack.Push(ExpressionBuilder.Arithmetic(leftExp, oper.Operator, rightExp));
+            if (oper is BinaryOperatorToken)
+            {
+                if (expressionStack.Count < 2)
+                    throw new ExpressionParseException($"Missing argument(s) for {oper.DisplayString} operator");
+                var rightExp = expressionStack.Pop();
+                var leftExp = expressionStack.Pop();
+                expressionStack.Push(ExpressionBuilder.Arithmetic(leftExp, ((BinaryOperatorToken) oper).Operator, rightExp));
+            }
+            else if(oper is UnaryMinusToken)
+            {
+                if (expressionStack.Count() < 1)
+                    throw new ExpressionParseException($"Missing argument(s) for {oper.DisplayString} operator");
+                expressionStack.Push(ExpressionBuilder.UnaryMinus(expressionStack.Pop()));
+            }
         }
 
         private static void ProcessFunction(Stack<Expression> expressionStack, FunctionToken func)
@@ -324,7 +342,7 @@ namespace ExpressionUtils.Parsing
                     }
                     else if (ArithmeticOperator.IsOperator(nextChar))
                     {
-                        tokens.Add(new ArithmeticOperatorToken(ArithmeticOperator.FromChar(nextChar)));
+                        tokens.Add(new BinaryOperatorToken(ArithmeticOperator.FromChar(nextChar)));
                     }
                     else if(nextChar == '"')
                     {

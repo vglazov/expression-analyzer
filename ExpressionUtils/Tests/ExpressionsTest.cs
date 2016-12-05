@@ -29,5 +29,19 @@ namespace ExpressionUtils.Tests
             Assert.AreEqual("max(x + 15, f())", expr.DisplayString);
         }
 
+        [TestMethod]
+        public void ExpressionTest4()
+        {
+            Expression expr = Arithmetic(UnaryMinus(Variable("a")), Plus, Function("f", Variable("x"), UnaryMinus(Parentheses(Arithmetic(Variable("x1"), Plus, Variable("x2"))))));
+            Assert.AreEqual("-a + f(x, -(x1 + x2))", expr.DisplayString);
+        }
+
+        [TestMethod]
+        public void ExpressionTest5()
+        {
+            Expression expr = Arithmetic(UnaryMinus(Integer(-8)), Plus, Variable("x1"));
+            Assert.AreEqual("-(-8) + x1", expr.DisplayString);
+        }
+
     }
 }
