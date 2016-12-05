@@ -69,5 +69,20 @@ namespace ExpressionUtils.Tests
             Assert.AreEqual("max(-(f() + 10), x1)", expression.DisplayString);
         }
 
+        [TestMethod]
+        [ExpectedException(typeof(ExpressionParseException))]
+        public void ParseTest10()
+        {
+            ExpressionParser.Parse("-f(-, z)");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ExpressionParseException))]
+        public void ParseTest11()
+        {
+            ExpressionParser.Parse("- + sqrt(x)");
+        }
+
+
     }
 }
