@@ -43,5 +43,13 @@ namespace ExpressionUtils.Tests
             Assert.AreEqual("-(-8) + x1", expr.DisplayString);
         }
 
+        [TestMethod]
+        public void ExpressionTest6()
+        {
+            Expression expr = UnaryMinus(UnaryMinus(Decimal(-10.1432m)));
+            Assert.AreEqual("-(-(-10.1432))", expr.DisplayString);
+        }
+
+
     }
 }

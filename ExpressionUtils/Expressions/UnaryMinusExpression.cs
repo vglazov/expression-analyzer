@@ -21,7 +21,8 @@ namespace ExpressionUtils.Expressions
                 if ((InnerExpression is IntegerConstantExpression &&
                     ((IntegerConstantExpression) InnerExpression).Int < 0) ||
                     (InnerExpression is DecimalConstantExpression &&
-                    ((DecimalConstantExpression)InnerExpression).Decimal < 0))
+                    ((DecimalConstantExpression)InnerExpression).Decimal < 0) ||
+                    InnerExpression is UnaryMinusExpression)
                 {
                     return $"-({InnerExpression.DisplayString})"; // e.g. display -(-1) instead of --1
                 }
